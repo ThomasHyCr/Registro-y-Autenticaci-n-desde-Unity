@@ -5,6 +5,8 @@ using UnityEngine;
 public class ProfileUIController : MonoBehaviour
 {
     [SerializeField] private TMP_Text textScore;
+    [SerializeField] private GameObject panelPerfil;
+    [SerializeField] private GameObject panelLeaderboard;
     private int scoreActual = 0;
 
     public void OnClickSumarPuntos()
@@ -29,5 +31,11 @@ public class ProfileUIController : MonoBehaviour
     {
         SessionManager.CerrarSesion();
         UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
+    }
+
+    public void OnClickVerRanking()
+    {
+    panelPerfil.SetActive(false);
+    panelLeaderboard.SetActive(true);
     }
 }

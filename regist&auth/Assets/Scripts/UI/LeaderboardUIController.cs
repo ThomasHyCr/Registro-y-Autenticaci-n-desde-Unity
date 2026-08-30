@@ -6,6 +6,8 @@ public class LeaderboardUIController : MonoBehaviour
 {
     [SerializeField] private Transform contentParent;
     [SerializeField] private GameObject filaPrefab;
+    [SerializeField] private GameObject panelLeaderboard;
+    [SerializeField] private GameObject panelPerfil;
 
     void OnEnable()
     {
@@ -44,5 +46,11 @@ public class LeaderboardUIController : MonoBehaviour
             return System.Convert.ToInt32(s);
         }
         return 0;
+    }
+
+    public void OnClickVolver()
+    {
+    panelLeaderboard.SetActive(false);
+    panelPerfil.SetActive(true);
     }
 }
