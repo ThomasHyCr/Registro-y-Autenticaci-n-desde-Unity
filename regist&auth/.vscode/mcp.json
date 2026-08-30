@@ -1,0 +1,8 @@
+{
+    "servers": {
+        "nombre-del-servidor": {
+            "command": "...",
+            "args": []
+        }
+    }
+}
