@@ -9,6 +9,15 @@ public class ProfileUIController : MonoBehaviour
     [SerializeField] private GameObject panelLeaderboard;
     private int scoreActual = 0;
 
+    public void MostrarPerfil()
+    {
+        if (panelPerfil != null)
+            panelPerfil.SetActive(true);
+
+        if (panelLeaderboard != null)
+            panelLeaderboard.SetActive(false);
+    }
+
     public void OnClickSumarPuntos()
     {
         scoreActual += 10; // o el resultado de tu mecánica de juego
@@ -29,13 +38,17 @@ public class ProfileUIController : MonoBehaviour
 
     public void OnClickLogout()
     {
+        SessionManager.GuardarScore(scoreActual);
         SessionManager.CerrarSesion();
         UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
     }
 
     public void OnClickVerRanking()
     {
-    panelPerfil.SetActive(false);
-    panelLeaderboard.SetActive(true);
+        if (panelPerfil != null)
+            panelPerfil.SetActive(false);
+
+        if (panelLeaderboard != null)
+            panelLeaderboard.SetActive(true);
     }
 }

@@ -10,6 +10,7 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private GameObject loadingIndicator;
     [SerializeField] private GameObject panelLogin;
     [SerializeField] private GameObject panelRegistro;
+    [SerializeField] private GameObject panelPerfil;
 
     public void OnClickLogin()
     {
@@ -28,7 +29,12 @@ public class LoginUIController : MonoBehaviour
             {
                 SetLoading(false);
                 SessionManager.GuardarSesion(usuario.username, token);
-                SceneManager.LoadScene("Game");
+
+                if (panelLogin != null)
+                    panelLogin.SetActive(false);
+
+                if (panelPerfil != null)
+                    panelPerfil.SetActive(true);
             },
             onError: (err) =>
             {

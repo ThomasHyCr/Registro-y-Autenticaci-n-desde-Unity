@@ -4,6 +4,7 @@ public static class SessionManager
 {
     private const string TOKEN_KEY = "auth_token";
     private const string USERNAME_KEY = "auth_username";
+    private const string SCORE_KEY = "game_score";
 
     public static string Token
     {
@@ -17,12 +18,24 @@ public static class SessionManager
         private set => PlayerPrefs.SetString(USERNAME_KEY, value);
     }
 
+    public static int Score
+    {
+        get => PlayerPrefs.GetInt(SCORE_KEY, 0);
+        private set => PlayerPrefs.SetInt(SCORE_KEY, value);
+    }
+
     public static bool HayTokenGuardado => !string.IsNullOrEmpty(Token);
 
     public static void GuardarSesion(string username, string token)
     {
         Username = username;
         Token = token;
+        PlayerPrefs.Save();
+    }
+
+    public static void GuardarScore(int score)
+    {
+        Score = score;
         PlayerPrefs.Save();
     }
 

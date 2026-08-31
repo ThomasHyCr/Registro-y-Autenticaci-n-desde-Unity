@@ -9,7 +9,14 @@ public class BootstrapController : MonoBehaviour
         {
             StartCoroutine(ApiManager.Instance.ObtenerPerfil(
                 SessionManager.Username, SessionManager.Token,
-                onSuccess: (usuario) => SceneManager.LoadScene("Game"),
+                onSuccess: (usuario) =>
+                {
+                    var profileController = FindObjectOfType<ProfileUIController>();
+                    if (profileController != null)
+                    {
+                        profileController.MostrarPerfil();
+                    }
+                },
                 onError: (err) =>
                 {
                     SessionManager.CerrarSesion();

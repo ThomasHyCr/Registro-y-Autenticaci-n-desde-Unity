@@ -1486,6 +1486,7 @@ MonoBehaviour:
   loadingIndicator: {fileID: 372517107}
   panelLogin: {fileID: 413338260}
   panelRegistro: {fileID: 1171840966}
+  panelPerfil: {fileID: 0}
 --- !u!1 &451886330
 GameObject:
   m_ObjectHideFlags: 0
