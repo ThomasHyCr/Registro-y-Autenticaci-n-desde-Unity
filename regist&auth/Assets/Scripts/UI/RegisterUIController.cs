@@ -21,15 +21,25 @@ public class RegisterUIController : MonoBehaviour
             return;
         }
 
+        
         SetLoading(true);
         StartCoroutine(ApiManager.Instance.Registrar(username, password,
             onSuccess: (usuario) =>
             {
                 SetLoading(false);
+                LimpiarCampos();
                 // El registro no devuelve token (ver diagrama 1),
                 // así que volvemos al panel de Login para que el usuario inicie sesión.
-                panelRegistro.SetActive(false);
-                panelLogin.SetActive(true);
+                if (panelRegistro != null)
+                    panelRegistro.SetActive(false);
+
+                if (panelLogin != null)
+                    panelLogin.SetActive(true);
+
+
+                Debug.Log($"[REGISTRO] user='{username}' (len={username.Length}) pass='{password}' pass len={password.Length}");
+
+            
             },
             onError: (err) =>
             {
@@ -40,18 +50,42 @@ public class RegisterUIController : MonoBehaviour
 
     public void OnClickVolver()
     {
-        panelRegistro.SetActive(false);
-        panelLogin.SetActive(true);
+        LimpiarCampos();
+
+        if (panelRegistro != null)
+            panelRegistro.SetActive(false);
+
+        if (panelLogin != null)
+            panelLogin.SetActive(true);
     }
 
     private void MostrarError(string msg)
     {
-        textError.text = msg;
-        textError.gameObject.SetActive(true);
+        if (textError != null)
+        {
+            textError.text = msg;
+            textError.gameObject.SetActive(true);
+        }
     }
 
     private void SetLoading(bool loading)
     {
-        loadingIndicator.SetActive(loading);
+        if (loadingIndicator != null)
+            loadingIndicator.SetActive(loading);
+    }
+
+    private void LimpiarCampos()
+    {
+        if (inputUsername != null)
+            inputUsername.text = string.Empty;
+
+        if (inputPassword != null)
+            inputPassword.text = string.Empty;
+
+        if (textError != null)
+        {
+            textError.text = string.Empty;
+            textError.gameObject.SetActive(false);
+        }
     }
 }

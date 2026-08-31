@@ -22,16 +22,20 @@ public class LoginUIController : MonoBehaviour
             MostrarError("Completa usuario y contraseña.");
             return;
         }
-
+        Debug.Log($"[LOGIN] user='{username}' (len={username.Length}) pass len={password.Length}");
         SetLoading(true);
         StartCoroutine(ApiManager.Instance.Login(username, password,
             onSuccess: (usuario, token) =>
             {
                 SetLoading(false);
                 SessionManager.GuardarSesion(usuario.username, token);
+                LimpiarCampos();
 
                 if (panelLogin != null)
                     panelLogin.SetActive(false);
+
+                if (panelRegistro != null)
+                    panelRegistro.SetActive(false);
 
                 if (panelPerfil != null)
                     panelPerfil.SetActive(true);
@@ -45,18 +49,42 @@ public class LoginUIController : MonoBehaviour
 
     private void MostrarError(string msg)
     {
-        textError.text = msg;
-        textError.gameObject.SetActive(true);
+        if (textError != null)
+        {
+            textError.text = msg;
+            textError.gameObject.SetActive(true);
+        }
     }
 
     public void OnClickIrARegistro()
     {
-    panelLogin.SetActive(false);
-    panelRegistro.SetActive(true);
+        LimpiarCampos();
+
+        if (panelLogin != null)
+            panelLogin.SetActive(false);
+
+        if (panelRegistro != null)
+            panelRegistro.SetActive(true);
     }
 
     private void SetLoading(bool loading)
     {
-        loadingIndicator.SetActive(loading);
+        if (loadingIndicator != null)
+            loadingIndicator.SetActive(loading);
+    }
+
+    private void LimpiarCampos()
+    {
+        if (inputUsername != null)
+            inputUsername.text = string.Empty;
+
+        if (inputPassword != null)
+            inputPassword.text = string.Empty;
+
+        if (textError != null)
+        {
+            textError.text = string.Empty;
+            textError.gameObject.SetActive(false);
+        }
     }
 }

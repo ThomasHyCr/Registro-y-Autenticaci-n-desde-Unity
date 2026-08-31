@@ -6,11 +6,24 @@ public class ProfileUIController : MonoBehaviour
 {
     [SerializeField] private TMP_Text textScore;
     [SerializeField] private GameObject panelPerfil;
+    [SerializeField] private GameObject panelLogin;
     [SerializeField] private GameObject panelLeaderboard;
     private int scoreActual = 0;
 
+    private void OnEnable()
+    {
+        scoreActual = SessionManager.Score;
+        if (textScore != null)
+            textScore.text = $"Score: {scoreActual}";
+    }
+
     public void MostrarPerfil()
     {
+        scoreActual = SessionManager.Score;
+
+        if (textScore != null)
+            textScore.text = $"Score: {scoreActual}";
+
         if (panelPerfil != null)
             panelPerfil.SetActive(true);
 
@@ -21,6 +34,7 @@ public class ProfileUIController : MonoBehaviour
     public void OnClickSumarPuntos()
     {
         scoreActual += 10; // o el resultado de tu mecánica de juego
+        SessionManager.GuardarScore(scoreActual);
 
         var data = new Dictionary<string, object> { { "score", scoreActual } };
 
@@ -28,7 +42,8 @@ public class ProfileUIController : MonoBehaviour
             SessionManager.Username, SessionManager.Token, data,
             onSuccess: (usuario) =>
             {
-                textScore.text = $"Score: {scoreActual}";
+                if (textScore != null)
+                    textScore.text = $"Score: {scoreActual}";
             },
             onError: (err) =>
             {
@@ -36,10 +51,17 @@ public class ProfileUIController : MonoBehaviour
             }));
     }
 
+    public void OnClickIrAlJuego()
+    {
+        SessionManager.GuardarScore(scoreActual);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
+    }
+
     public void OnClickLogout()
     {
         SessionManager.GuardarScore(scoreActual);
         SessionManager.CerrarSesion();
+        Debug.Log("Sesión cerrada. Volviendo a Login.");
         UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
     }
 

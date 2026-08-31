@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3020347125988164036}
-  - component: {fileID: 6559851870085630410}
+  - component: {fileID: 279893042045570180}
   m_Layer: 0
   m_Name: goFilaUsuario
   m_TagString: Untagged
@@ -34,12 +34,12 @@ RectTransform:
   - {fileID: 3298921619453939634}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 230.08862, y: 25}
-  m_SizeDelta: {x: 560.1772, y: 50}
+  m_AnchorMin: {x: 0.4754792, y: 0.5}
+  m_AnchorMax: {x: 0.7645209, y: 0.546}
+  m_AnchoredPosition: {x: -0.91137695, y: 1}
+  m_SizeDelta: {x: 2.177185, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6559851870085630410
+--- !u!114 &279893042045570180
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
