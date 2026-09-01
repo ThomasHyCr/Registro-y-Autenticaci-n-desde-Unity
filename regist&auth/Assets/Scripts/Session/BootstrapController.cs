@@ -19,6 +19,8 @@ public class BootstrapController : MonoBehaviour
                 SessionManager.Username, SessionManager.Token,
                 onSuccess: (usuario) =>
                 {
+                    SessionManager.SincronizarScoreDesdeUsuario(usuario);
+
                     var profileController = FindFirstObjectByType<ProfileUIController>();
                     if (profileController != null)
                     {

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public static class SessionManager
@@ -39,10 +40,30 @@ public static class SessionManager
         PlayerPrefs.Save();
     }
 
+    public static void SincronizarScoreDesdeUsuario(UsuarioData usuario)
+    {
+        int scoreActual = 0;
+
+        if (usuario != null && usuario.data != null && usuario.data.TryGetValue("score", out var scoreValue))
+        {
+            try
+            {
+                scoreActual = Convert.ToInt32(scoreValue);
+            }
+            catch (Exception)
+            {
+                scoreActual = 0;
+            }
+        }
+
+        GuardarScore(scoreActual);
+    }
+
     public static void CerrarSesion()
     {
         PlayerPrefs.DeleteKey(TOKEN_KEY);
         PlayerPrefs.DeleteKey(USERNAME_KEY);
+        PlayerPrefs.DeleteKey(SCORE_KEY);
         PlayerPrefs.Save();
     }
 }

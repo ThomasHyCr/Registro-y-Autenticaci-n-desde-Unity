@@ -29,6 +29,7 @@ public class LoginUIController : MonoBehaviour
             {
                 SetLoading(false);
                 SessionManager.GuardarSesion(usuario.username, token);
+                SessionManager.SincronizarScoreDesdeUsuario(usuario);
                 LimpiarCampos();
 
                 if (panelLogin != null)
