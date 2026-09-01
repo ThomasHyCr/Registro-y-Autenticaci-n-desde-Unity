@@ -11,7 +11,42 @@ public class LeaderboardUIController : MonoBehaviour
 
     void OnEnable()
     {
-        CargarRanking();
+        ActualizarScoreActual();
+    }
+
+    private void ActualizarScoreActual()
+    {
+        if (string.IsNullOrEmpty(SessionManager.Username) || string.IsNullOrEmpty(SessionManager.Token))
+        {
+            CargarRanking();
+            return;
+        }
+
+        StartCoroutine(ApiManager.Instance.ObtenerPerfil(
+            SessionManager.Username,
+            SessionManager.Token,
+            onSuccess: (usuario) =>
+            {
+                int scoreActual = SessionManager.Score;
+
+                if (usuario != null && usuario.data != null && usuario.data.TryGetValue("score", out var scoreValue))
+                {
+                    scoreActual = System.Convert.ToInt32(scoreValue);
+                }
+
+                // Si la API no devuelve score en este momento, no forzamos 0 sobre el valor ya conocido.
+                if (scoreActual != SessionManager.Score)
+                {
+                    SessionManager.GuardarScore(scoreActual);
+                }
+
+                CargarRanking();
+            },
+            onError: (err) =>
+            {
+                Debug.LogWarning("Error actualizando score actual: " + err);
+                CargarRanking();
+            }));
     }
 
     private void CargarRanking()
