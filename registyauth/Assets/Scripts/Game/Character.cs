@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -20,24 +19,6 @@ public class Character : MonoBehaviour
 
             _score = value;
             SessionManager.GuardarScore(_score);
-
-            if (!string.IsNullOrEmpty(SessionManager.Username) && !string.IsNullOrEmpty(SessionManager.Token) && ApiManager.Instance != null)
-            {
-                var data = new Dictionary<string, object> { { "score", _score } };
-                StartCoroutine(ApiManager.Instance.ActualizarData(
-                    SessionManager.Username,
-                    SessionManager.Token,
-                    data,
-                    onSuccess: (usuario) =>
-                    {
-                        Debug.Log($"[Score sincronizado] usuario={usuario.username}, score={_score}");
-                    },
-                    onError: (err) =>
-                    {
-                        Debug.LogWarning("Error sincronizando score del juego: " + err);
-                    }));
-            }
-
             OnScoreChanged?.Invoke();
         }
     }
@@ -52,13 +33,11 @@ public class Character : MonoBehaviour
         Debug.Log("toque | score: " + score);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         score = SessionManager.Score;
     }
 
-    // Update is called once per frame
     void Update()
     {
     }

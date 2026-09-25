@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ProfileUIController : MonoBehaviour
 {
@@ -8,69 +8,44 @@ public class ProfileUIController : MonoBehaviour
     [SerializeField] private GameObject panelPerfil;
     [SerializeField] private GameObject panelLogin;
     [SerializeField] private GameObject panelLeaderboard;
-    private int scoreActual;
 
     private void OnEnable()
     {
-        scoreActual = SessionManager.Score;
-        if (textScore != null)
-            textScore.text = $"Score: {scoreActual}";
+        ActualizarTextoScore();
     }
 
     public void MostrarPerfil()
     {
-        scoreActual = SessionManager.Score;
+        ActualizarTextoScore();
 
-        if (textScore != null)
-            textScore.text = $"Score: {scoreActual}";
-
-        if (panelPerfil != null)
-            panelPerfil.SetActive(true);
-
-        if (panelLeaderboard != null)
-            panelLeaderboard.SetActive(false);
+        if (panelPerfil != null) panelPerfil.SetActive(true);
+        if (panelLeaderboard != null) panelLeaderboard.SetActive(false);
     }
 
-    public void OnClickSumarPuntos()
+    private void ActualizarTextoScore()
     {
-        scoreActual += 10; // o el resultado de tu mecánica de juego
-        SessionManager.GuardarScore(scoreActual);
-
-        var data = new Dictionary<string, object> { { "score", scoreActual } };
-
-        StartCoroutine(ApiManager.Instance.ActualizarData(
-            SessionManager.Username, SessionManager.Token, data,
-            onSuccess: (usuario) =>
-            {
-                if (textScore != null)
-                    textScore.text = $"Score: {scoreActual}";
-            },
-            onError: (err) =>
-            {
-                Debug.LogWarning("Error actualizando score: " + err);
-            }));
+        if (textScore != null)
+            textScore.text = $"Score: {SessionManager.Score}";
     }
 
     public void OnClickIrAlJuego()
     {
-        SessionManager.GuardarScore(scoreActual);
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("Game");
     }
 
     public void OnClickLogout()
     {
-        SessionManager.GuardarScore(scoreActual);
-        SessionManager.CerrarSesion();
+        if (FirebaseManager.Instance != null)
+            FirebaseManager.Instance.Auth.SignOut();
+
+        SessionManager.LimpiarScore();
         Debug.Log("Sesión cerrada. Volviendo a Login.");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
+        SceneManager.LoadScene("Login");
     }
 
     public void OnClickVerRanking()
     {
-        if (panelPerfil != null)
-            panelPerfil.SetActive(false);
-
-        if (panelLeaderboard != null)
-            panelLeaderboard.SetActive(true);
+        if (panelPerfil != null) panelPerfil.SetActive(false);
+        if (panelLeaderboard != null) panelLeaderboard.SetActive(true);
     }
 }

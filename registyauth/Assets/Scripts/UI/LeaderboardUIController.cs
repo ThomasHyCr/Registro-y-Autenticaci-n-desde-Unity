@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class LeaderboardUIController : MonoBehaviour
@@ -11,81 +10,31 @@ public class LeaderboardUIController : MonoBehaviour
 
     void OnEnable()
     {
-        ActualizarScoreActual();
-    }
-
-    private void ActualizarScoreActual()
-    {
-        if (string.IsNullOrEmpty(SessionManager.Username) || string.IsNullOrEmpty(SessionManager.Token))
-        {
-            CargarRanking();
-            return;
-        }
-
-        StartCoroutine(ApiManager.Instance.ObtenerPerfil(
-            SessionManager.Username,
-            SessionManager.Token,
-            onSuccess: (usuario) =>
-            {
-                int scoreActual = SessionManager.Score;
-
-                if (usuario != null && usuario.data != null && usuario.data.TryGetValue("score", out var scoreValue))
-                {
-                    scoreActual = System.Convert.ToInt32(scoreValue);
-                }
-
-                // Si la API no devuelve score en este momento, no forzamos 0 sobre el valor ya conocido.
-                if (scoreActual != SessionManager.Score)
-                {
-                    SessionManager.GuardarScore(scoreActual);
-                }
-
-                CargarRanking();
-            },
-            onError: (err) =>
-            {
-                Debug.LogWarning("Error actualizando score actual: " + err);
-                CargarRanking();
-            }));
+        CargarRanking();
     }
 
     private void CargarRanking()
     {
         foreach (Transform child in contentParent) Destroy(child.gameObject);
 
-        StartCoroutine(ApiManager.Instance.ListarUsuarios(
-            SessionManager.Token, limit: 50, skip: 0, sort: true,
+        FirebaseManager.Instance.ObtenerLeaderboard(50,
             onSuccess: (usuarios) =>
             {
-                // Ordenar de mayor a menor por score, por si la API no lo hace
-                var ordenados = usuarios
-                    .OrderByDescending(u => ObtenerScore(u))
-                    .ToList();
-
-                for (int i = 0; i < ordenados.Count; i++)
+                for (int i = 0; i < usuarios.Count; i++)
                 {
                     var fila = Instantiate(filaPrefab, contentParent);
-                    var texts = fila.GetComponentsInChildren<TMPro.TMP_Text>();
-                    texts[0].text = (i + 1).ToString();          // posición
-                    texts[1].text = ordenados[i].username;        // nombre
-                    texts[2].text = ObtenerScore(ordenados[i]).ToString(); // score
+                    var texts = fila.GetComponentsInChildren<TMP_Text>();
+                    texts[0].text = (i + 1).ToString();
+                    texts[1].text = usuarios[i].username;
+                    texts[2].text = usuarios[i].score.ToString();
                 }
             },
-            onError: (err) => Debug.LogWarning("Error listando usuarios: " + err)));
-    }
-
-    private int ObtenerScore(UsuarioData u)
-    {
-        if (u.data != null && u.data.TryGetValue("score", out var s))
-        {
-            return System.Convert.ToInt32(s);
-        }
-        return 0;
+            onError: (err) => Debug.LogWarning("Error listando usuarios: " + err));
     }
 
     public void OnClickVolver()
     {
-    panelLeaderboard.SetActive(false);
-    panelPerfil.SetActive(true);
+        if (panelLeaderboard != null) panelLeaderboard.SetActive(false);
+        if (panelPerfil != null) panelPerfil.SetActive(true);
     }
 }

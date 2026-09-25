@@ -1,6 +1,21 @@
 using System;
 using System.Collections.Generic;
+using Firebase.Firestore;
 using UnityEngine;
+
+// ===================== Modelo para Firebase (Firestore) =====================
+
+[FirestoreData]
+public class UsuarioFirestore
+{
+    [FirestoreProperty] public string username { get; set; }
+    [FirestoreProperty] public string email { get; set; }
+    [FirestoreProperty] public long score { get; set; }
+}
+
+// ===================== Modelos viejos de la API REST =====================
+// Se pueden borrar una vez que confirmes que toda la app funciona con Firebase
+// y elimines también ApiManager.cs.
 
 [Serializable]
 public class CredencialesRequest
@@ -15,7 +30,7 @@ public class UsuarioData
     public string uid;
     public string username;
     public string state;
-    public Dictionary<string, object> data; // requiere Newtonsoft para deserializar bien
+    public Dictionary<string, object> data;
 }
 
 [Serializable]

@@ -1,5 +1,5 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Firestore;
@@ -48,9 +48,10 @@ public class FirebaseManager : MonoBehaviour
         });
     }
 
-public void Registrar(string email, string password, string username, string datoAdicional,
+    // ---------- REGISTRO ----------
+    public void Registrar(string email, string password, string username,
     Action<UsuarioFirestore> onSuccess, Action<string> onError)
-{
+    {
     Auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
     {
         if (task.IsCanceled || task.IsFaulted)
@@ -59,7 +60,7 @@ public void Registrar(string email, string password, string username, string dat
             return;
         }
 
-        FirebaseUser user = task.Result.User; // en SDKs recientes task.Result es AuthResult
+        FirebaseUser user = task.Result.User; // si tu SDK da error acá, probá "task.Result" sin ".User"
         string uid = user.UserId;
 
         var datos = new UsuarioFirestore
@@ -73,12 +74,119 @@ public void Registrar(string email, string password, string username, string dat
         {
             if (setTask.IsCanceled || setTask.IsFaulted)
             {
-                onError?.Invoke("Cuenta creada, pero falló al guardar los datos adicionales.");
+                onError?.Invoke("Cuenta creada, pero falló al guardar los datos del usuario.");
                 return;
             }
             onSuccess?.Invoke(datos);
         });
     });
-}
-}
+    }
 
+    // ---------- LOGIN ----------
+    public void Login(string email, string password,
+        Action<UsuarioFirestore> onSuccess, Action<string> onError)
+    {
+        Auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCanceled || task.IsFaulted)
+            {
+                onError?.Invoke(InterpretarError(task.Exception));
+                return;
+            }
+
+            string uid = Auth.CurrentUser.UserId;
+            ObtenerDatosUsuario(uid, onSuccess, onError);
+        });
+    }
+
+    // ---------- OBTENER DATOS DE UN USUARIO ----------
+    public void ObtenerDatosUsuario(string uid,
+        Action<UsuarioFirestore> onSuccess, Action<string> onError)
+    {
+        Db.Collection("usuarios").Document(uid).GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCanceled || task.IsFaulted || !task.Result.Exists)
+            {
+                onError?.Invoke("No se encontraron datos del usuario.");
+                return;
+            }
+            var datos = task.Result.ConvertTo<UsuarioFirestore>();
+            onSuccess?.Invoke(datos);
+        });
+    }
+
+    // ---------- RECUPERAR CONTRASEÑA ----------
+    public void RecuperarPassword(string email, Action onSuccess, Action<string> onError)
+    {
+        Auth.SendPasswordResetEmailAsync(email).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCanceled || task.IsFaulted)
+            {
+                onError?.Invoke(InterpretarError(task.Exception));
+                return;
+            }
+            onSuccess?.Invoke();
+        });
+    }
+
+    // ---------- ACTUALIZAR SCORE ----------
+    public void ActualizarScore(int nuevoScore, Action onSuccess, Action<string> onError)
+    {
+        string uid = Auth.CurrentUser.UserId;
+        Db.Collection("usuarios").Document(uid).UpdateAsync("score", (long)nuevoScore)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCanceled || task.IsFaulted)
+                {
+                    onError?.Invoke("No se pudo guardar el puntaje.");
+                    return;
+                }
+                onSuccess?.Invoke();
+            });
+    }
+
+    // ---------- LEADERBOARD ----------
+    public void ObtenerLeaderboard(int limite,
+        Action<List<UsuarioFirestore>> onSuccess, Action<string> onError)
+    {
+        Db.Collection("usuarios")
+          .OrderByDescending("score")
+          .Limit(limite)
+          .GetSnapshotAsync()
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsCanceled || task.IsFaulted)
+              {
+                  onError?.Invoke("No se pudo cargar el ranking.");
+                  return;
+              }
+
+              var lista = new List<UsuarioFirestore>();
+              foreach (DocumentSnapshot doc in task.Result.Documents)
+              {
+                  lista.Add(doc.ConvertTo<UsuarioFirestore>());
+              }
+              onSuccess?.Invoke(lista);
+          });
+    }
+
+    // ---------- ERRORES ----------
+    private string InterpretarError(AggregateException exception)
+    {
+        if (exception == null) return "Error desconocido.";
+
+        var firebaseEx = exception.GetBaseException() as FirebaseException;
+        if (firebaseEx == null) return exception.GetBaseException().Message;
+
+        AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
+        switch (errorCode)
+        {
+            case AuthError.InvalidEmail: return "El correo no es válido.";
+            case AuthError.WrongPassword: return "Contraseña incorrecta.";
+            case AuthError.UserNotFound: return "No existe una cuenta con ese correo.";
+            case AuthError.EmailAlreadyInUse: return "Ese correo ya está registrado.";
+            case AuthError.WeakPassword: return "La contraseña es demasiado débil (mínimo 6 caracteres).";
+            default: return $"Error de autenticación: {errorCode}";
+        }
+    }
+}

@@ -7,44 +7,62 @@ public class BootstrapController : MonoBehaviour
 
     void Start()
     {
-        if (SessionManager.HayTokenGuardado)
+        if (FirebaseManager.Instance != null && FirebaseManager.Instance.Listo)
         {
-            if (panelLogin != null)
-                panelLogin.SetActive(false);
-
-            if (panelPerfil != null)
-                panelPerfil.SetActive(true);
-
-            StartCoroutine(ApiManager.Instance.ObtenerPerfil(
-                SessionManager.Username, SessionManager.Token,
-                onSuccess: (usuario) =>
-                {
-                    SessionManager.SincronizarScoreDesdeUsuario(usuario);
-
-                    var profileController = FindFirstObjectByType<ProfileUIController>();
-                    if (profileController != null)
-                    {
-                        profileController.MostrarPerfil();
-                    }
-                },
-                onError: (err) =>
-                {
-                    SessionManager.CerrarSesion();
-
-                    if (panelPerfil != null)
-                        panelPerfil.SetActive(false);
-
-                    if (panelLogin != null)
-                        panelLogin.SetActive(true);
-                }));
+            VerificarSesion();
+        }
+        else if (FirebaseManager.Instance != null)
+        {
+            FirebaseManager.Instance.OnFirebaseListo += VerificarSesion;
         }
         else
         {
-            if (panelPerfil != null)
-                panelPerfil.SetActive(false);
-
-            if (panelLogin != null)
-                panelLogin.SetActive(true);
+            MostrarLogin();
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (FirebaseManager.Instance != null)
+            FirebaseManager.Instance.OnFirebaseListo -= VerificarSesion;
+    }
+
+    private void VerificarSesion()
+    {
+        if (FirebaseManager.Instance.Auth.CurrentUser != null)
+        {
+            string uid = FirebaseManager.Instance.Auth.CurrentUser.UserId;
+            FirebaseManager.Instance.ObtenerDatosUsuario(uid,
+                onSuccess: (datos) =>
+                {
+                    SessionManager.GuardarScore((int)datos.score);
+                    MostrarPerfil();
+
+                    var profileController = FindFirstObjectByType<ProfileUIController>();
+                    if (profileController != null)
+                        profileController.MostrarPerfil();
+                },
+                onError: (err) =>
+                {
+                    FirebaseManager.Instance.Auth.SignOut();
+                    MostrarLogin();
+                });
+        }
+        else
+        {
+            MostrarLogin();
+        }
+    }
+
+    private void MostrarLogin()
+    {
+        if (panelLogin != null) panelLogin.SetActive(true);
+        if (panelPerfil != null) panelPerfil.SetActive(false);
+    }
+
+    private void MostrarPerfil()
+    {
+        if (panelLogin != null) panelLogin.SetActive(false);
+        if (panelPerfil != null) panelPerfil.SetActive(true);
     }
 }

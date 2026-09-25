@@ -1,51 +1,63 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LoginUIController : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField inputUsername;
+    [SerializeField] private TMP_InputField inputEmail;
     [SerializeField] private TMP_InputField inputPassword;
     [SerializeField] private TMP_Text textError;
     [SerializeField] private GameObject loadingIndicator;
     [SerializeField] private GameObject panelLogin;
     [SerializeField] private GameObject panelRegistro;
     [SerializeField] private GameObject panelPerfil;
+    [SerializeField] private GameObject panelRecuperar;
 
     public void OnClickLogin()
     {
-        string username = inputUsername.text.Trim();
+        string email = inputEmail.text.Trim();
         string password = inputPassword.text;
 
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            MostrarError("Completa usuario y contraseña.");
+            MostrarError("Completa correo y contraseña.");
             return;
         }
-        Debug.Log($"[LOGIN] user='{username}' (len={username.Length}) pass len={password.Length}");
+
         SetLoading(true);
-        StartCoroutine(ApiManager.Instance.Login(username, password,
-            onSuccess: (usuario, token) =>
+        FirebaseManager.Instance.Login(email, password,
+            onSuccess: (datos) =>
             {
                 SetLoading(false);
-                SessionManager.GuardarSesion(usuario.username, token);
-                SessionManager.SincronizarScoreDesdeUsuario(usuario);
+                SessionManager.GuardarScore((int)datos.score);
                 LimpiarCampos();
 
-                if (panelLogin != null)
-                    panelLogin.SetActive(false);
+                if (panelLogin != null) panelLogin.SetActive(false);
+                if (panelRegistro != null) panelRegistro.SetActive(false);
+                if (panelPerfil != null) panelPerfil.SetActive(true);
 
-                if (panelRegistro != null)
-                    panelRegistro.SetActive(false);
-
-                if (panelPerfil != null)
-                    panelPerfil.SetActive(true);
+                var profileController = FindFirstObjectByType<ProfileUIController>();
+                if (profileController != null)
+                    profileController.MostrarPerfil();
             },
             onError: (err) =>
             {
                 SetLoading(false);
                 MostrarError(err);
-            }));
+            });
+    }
+
+    public void OnClickIrARegistro()
+    {
+        LimpiarCampos();
+        if (panelLogin != null) panelLogin.SetActive(false);
+        if (panelRegistro != null) panelRegistro.SetActive(true);
+    }
+
+    public void OnClickAbrirRecuperarPassword()
+    {
+        LimpiarCampos();
+        if (panelLogin != null) panelLogin.SetActive(false);
+        if (panelRecuperar != null) panelRecuperar.SetActive(true);
     }
 
     private void MostrarError(string msg)
@@ -57,31 +69,15 @@ public class LoginUIController : MonoBehaviour
         }
     }
 
-    public void OnClickIrARegistro()
-    {
-        LimpiarCampos();
-
-        if (panelLogin != null)
-            panelLogin.SetActive(false);
-
-        if (panelRegistro != null)
-            panelRegistro.SetActive(true);
-    }
-
     private void SetLoading(bool loading)
     {
-        if (loadingIndicator != null)
-            loadingIndicator.SetActive(loading);
+        if (loadingIndicator != null) loadingIndicator.SetActive(loading);
     }
 
     private void LimpiarCampos()
     {
-        if (inputUsername != null)
-            inputUsername.text = string.Empty;
-
-        if (inputPassword != null)
-            inputPassword.text = string.Empty;
-
+        if (inputEmail != null) inputEmail.text = string.Empty;
+        if (inputPassword != null) inputPassword.text = string.Empty;
         if (textError != null)
         {
             textError.text = string.Empty;

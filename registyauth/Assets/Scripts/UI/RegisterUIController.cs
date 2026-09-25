@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class RegisterUIController : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField inputUsername;
+    [SerializeField] private TMP_InputField inputEmail;
     [SerializeField] private TMP_InputField inputPassword;
+    [SerializeField] private TMP_InputField inputUsername;
     [SerializeField] private TMP_Text textError;
     [SerializeField] private GameObject loadingIndicator;
     [SerializeField] private GameObject panelRegistro;
@@ -12,51 +13,38 @@ public class RegisterUIController : MonoBehaviour
 
     public void OnClickRegistrar()
     {
-        string username = inputUsername.text.Trim();
+        string email = inputEmail.text.Trim();
         string password = inputPassword.text;
+        string username = inputUsername.text.Trim();
 
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(username))
         {
-            MostrarError("Completa usuario y contraseña.");
+            MostrarError("Completa correo, usuario y contraseña.");
             return;
         }
 
-        
         SetLoading(true);
-        StartCoroutine(ApiManager.Instance.Registrar(username, password,
-            onSuccess: (usuario) =>
+        FirebaseManager.Instance.Registrar(email, password, username,
+            onSuccess: (datos) =>
             {
                 SetLoading(false);
                 LimpiarCampos();
-                // El registro no devuelve token (ver diagrama 1),
-                // así que volvemos al panel de Login para que el usuario inicie sesión.
-                if (panelRegistro != null)
-                    panelRegistro.SetActive(false);
 
-                if (panelLogin != null)
-                    panelLogin.SetActive(true);
-
-
-                Debug.Log($"[REGISTRO] user='{username}' (len={username.Length}) pass='{password}' pass len={password.Length}");
-
-            
+                if (panelRegistro != null) panelRegistro.SetActive(false);
+                if (panelLogin != null) panelLogin.SetActive(true);
             },
             onError: (err) =>
             {
                 SetLoading(false);
                 MostrarError(err);
-            }));
+            });
     }
 
     public void OnClickVolver()
     {
         LimpiarCampos();
-
-        if (panelRegistro != null)
-            panelRegistro.SetActive(false);
-
-        if (panelLogin != null)
-            panelLogin.SetActive(true);
+        if (panelRegistro != null) panelRegistro.SetActive(false);
+        if (panelLogin != null) panelLogin.SetActive(true);
     }
 
     private void MostrarError(string msg)
@@ -70,18 +58,14 @@ public class RegisterUIController : MonoBehaviour
 
     private void SetLoading(bool loading)
     {
-        if (loadingIndicator != null)
-            loadingIndicator.SetActive(loading);
+        if (loadingIndicator != null) loadingIndicator.SetActive(loading);
     }
 
     private void LimpiarCampos()
     {
-        if (inputUsername != null)
-            inputUsername.text = string.Empty;
-
-        if (inputPassword != null)
-            inputPassword.text = string.Empty;
-
+        if (inputEmail != null) inputEmail.text = string.Empty;
+        if (inputPassword != null) inputPassword.text = string.Empty;
+        if (inputUsername != null) inputUsername.text = string.Empty;
         if (textError != null)
         {
             textError.text = string.Empty;

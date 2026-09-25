@@ -36,10 +36,21 @@ public class GameManager : MonoBehaviour
 
     public void CambiarALogin()
     {
-        if (player != null)
-            SessionManager.GuardarScore(player.score);
-
-        SceneManager.LoadScene("Login");
+        if (player != null && FirebaseManager.Instance != null
+            && FirebaseManager.Instance.Auth.CurrentUser != null)
+        {
+            FirebaseManager.Instance.ActualizarScore(player.score,
+                onSuccess: () => SceneManager.LoadScene("Login"),
+                onError: (err) =>
+                {
+                    Debug.LogWarning("No se pudo guardar el score en Firebase: " + err);
+                    SceneManager.LoadScene("Login"); // navegamos igual, para no trabar al usuario
+                });
+        }
+        else
+        {
+            SceneManager.LoadScene("Login");
+        }
     }
 
     public void RecargarGame()
