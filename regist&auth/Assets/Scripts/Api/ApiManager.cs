@@ -9,8 +9,8 @@ public class ApiManager : MonoBehaviour
 {
     public static ApiManager Instance { get; private set; }
 
-    [SerializeField] private string baseUrl = "https://sid-restapi.onrender.com";
-
+    //[SerializeField] private string baseUrl = "https://sid-restapi.onrender.com";
+    [SerializeField] private string baseUrl = "http://localhost:5000";
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }

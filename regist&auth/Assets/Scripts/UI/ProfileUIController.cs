@@ -8,7 +8,7 @@ public class ProfileUIController : MonoBehaviour
     [SerializeField] private GameObject panelPerfil;
     [SerializeField] private GameObject panelLogin;
     [SerializeField] private GameObject panelLeaderboard;
-    private int scoreActual = 0;
+    private int scoreActual;
 
     private void OnEnable()
     {
