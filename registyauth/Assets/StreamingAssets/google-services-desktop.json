@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "431013675502",
+    "project_id": "actividad-serverless-thc",
+    "storage_bucket": "actividad-serverless-thc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:431013675502:android:f3050eeb787d5061f00eff",
+        "android_client_info": {
+          "package_name": "com.kurotsuchi.actServerless"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEVvWS06Mx9N6iwtc4B_L1Ch8OqwOagpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
