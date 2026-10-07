@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "431013675502",
+    "firebase_url": "https://actividad-serverless-thc-default-rtdb.firebaseio.com",
     "project_id": "actividad-serverless-thc",
     "storage_bucket": "actividad-serverless-thc.firebasestorage.app"
   },

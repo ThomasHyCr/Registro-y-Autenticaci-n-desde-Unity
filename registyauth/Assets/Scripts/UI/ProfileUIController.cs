@@ -8,6 +8,8 @@ public class ProfileUIController : MonoBehaviour
     [SerializeField] private GameObject panelPerfil;
     [SerializeField] private GameObject panelLogin;
     [SerializeField] private GameObject panelLeaderboard;
+    [SerializeField] private GameObject panelUsuariosOnline;
+    [SerializeField] private GameObject panelSolicitudes;
 
     private void OnEnable()
     {
@@ -35,17 +37,28 @@ public class ProfileUIController : MonoBehaviour
 
     public void OnClickLogout()
     {
-        if (FirebaseManager.Instance != null)
+        PresenceManager.Instance.MarcarComoOffline(() =>
+        {
             FirebaseManager.Instance.Auth.SignOut();
-
-        SessionManager.LimpiarScore();
-        Debug.Log("Sesión cerrada. Volviendo a Login.");
-        SceneManager.LoadScene("Login");
+            SessionManager.LimpiarScore();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
+        });
     }
 
     public void OnClickVerRanking()
     {
         if (panelPerfil != null) panelPerfil.SetActive(false);
         if (panelLeaderboard != null) panelLeaderboard.SetActive(true);
+    }
+    public void OnClickVerUsuariosOnline()
+    {
+        if (panelPerfil != null) panelPerfil.SetActive(false);
+        if (panelUsuariosOnline != null) panelUsuariosOnline.SetActive(true);
+    }
+
+    public void OnClickVerSolicitudes()
+    {
+        if (panelPerfil != null) panelPerfil.SetActive(false);
+        if (panelSolicitudes != null) panelSolicitudes.SetActive(true);
     }
 }

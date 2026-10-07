@@ -36,6 +36,7 @@ public class BootstrapController : MonoBehaviour
                 onSuccess: (datos) =>
                 {
                     SessionManager.GuardarScore((int)datos.score);
+                    PresenceManager.Instance.IniciarPresencia(uid, datos.username);
                     MostrarPerfil();
 
                     var profileController = FindFirstObjectByType<ProfileUIController>();
