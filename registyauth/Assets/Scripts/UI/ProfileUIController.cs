@@ -10,6 +10,8 @@ public class ProfileUIController : MonoBehaviour
     [SerializeField] private GameObject panelLeaderboard;
     [SerializeField] private GameObject panelUsuariosOnline;
     [SerializeField] private GameObject panelSolicitudes;
+    [SerializeField] private GameObject panelAmigos;
+    [SerializeField] private GameObject panelMatchmaking;
 
     private void OnEnable()
     {
@@ -37,6 +39,12 @@ public class ProfileUIController : MonoBehaviour
 
     public void OnClickLogout()
     {
+        if (NotificationsManager.Instance != null)
+            NotificationsManager.Instance.DetenerEscucha();
+    
+        if (MatchmakingManager.Instance != null)
+            MatchmakingManager.Instance.CancelarBusqueda();
+    
         PresenceManager.Instance.MarcarComoOffline(() =>
         {
             FirebaseManager.Instance.Auth.SignOut();
@@ -60,5 +68,17 @@ public class ProfileUIController : MonoBehaviour
     {
         if (panelPerfil != null) panelPerfil.SetActive(false);
         if (panelSolicitudes != null) panelSolicitudes.SetActive(true);
+    }
+
+    public void OnClickVerAmigos()
+    {
+        if (panelPerfil != null) panelPerfil.SetActive(false);
+        if (panelAmigos != null) panelAmigos.SetActive(true);
+    }
+    
+    public void OnClickVerMatchmaking()
+    {
+        if (panelPerfil != null) panelPerfil.SetActive(false);
+        if (panelMatchmaking != null) panelMatchmaking.SetActive(true);
     }
 }

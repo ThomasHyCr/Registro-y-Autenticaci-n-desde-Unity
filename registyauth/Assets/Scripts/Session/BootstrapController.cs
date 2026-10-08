@@ -37,6 +37,8 @@ public class BootstrapController : MonoBehaviour
                 {
                     SessionManager.GuardarScore((int)datos.score);
                     PresenceManager.Instance.IniciarPresencia(uid, datos.username);
+                    if (NotificationsManager.Instance != null)
+                       NotificationsManager.Instance.IniciarEscuchaAmigos();
                     MostrarPerfil();
 
                     var profileController = FindFirstObjectByType<ProfileUIController>();

@@ -30,6 +30,8 @@ public class LoginUIController : MonoBehaviour
                 SetLoading(false);
                 SessionManager.GuardarScore((int)datos.score);
                 PresenceManager.Instance.IniciarPresencia(FirebaseManager.Instance.Auth.CurrentUser.UserId, datos.username);
+                if (NotificationsManager.Instance != null)
+                  NotificationsManager.Instance.IniciarEscuchaAmigos();
                 LimpiarCampos();
 
                 if (panelLogin != null) panelLogin.SetActive(false);
